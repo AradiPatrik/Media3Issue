@@ -49,12 +49,12 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
-    implementation("androidx.media3:media3-exoplayer:1.2.1")
-    implementation("androidx.media3:media3-exoplayer-dash:1.2.1")
-    implementation("androidx.media3:media3-ui:1.2.1")
-    implementation("androidx.media3:media3-transformer:1.2.1")
-    implementation("androidx.media3:media3-effect:1.2.1")
-    implementation("androidx.media3:media3-common:1.2.1")
+    val media3Version = "1.3.0-alpha01"
+    implementation("androidx.media3:media3-exoplayer:$media3Version")
+    implementation("androidx.media3:media3-exoplayer-dash:$media3Version")
+    implementation("androidx.media3:media3-ui:$media3Version")
+    implementation("androidx.media3:media3-transformer:$media3Version")
+    implementation("androidx.media3:media3-effect:$media3Version")
+    implementation("androidx.media3:media3-common:$media3Version")
 
 }
