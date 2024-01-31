@@ -134,12 +134,19 @@ class VideoSequenceItemBuilder(private val context: Context) {
     }
 
     @CompositionDsl
-    fun silence(duration: Duration) {
+    fun silence(duration: Duration, id: String = "") {
         val silenceFile = getFileFromAssets(context, "transparent.png")
         videoItems.add(
             EditedMediaItem.Builder(
                 MediaItem.Builder()
                     .setUri(silenceFile.toUri())
+                    .let {
+                        if (id.isNotEmpty()) {
+                            it.setMediaId(id)
+                        } else {
+                            it
+                        }
+                    }
                     .build()
             )
                 .setEffects(
@@ -167,6 +174,7 @@ class VideoItemBuilder(private val uri: Uri) {
     private var endAtMs: Long = 0
     private var duration: Duration = Duration.ZERO
     private var fps: Int = 0
+    private var id: String = ""
 
     @CompositionDsl
     fun effects(block: EffectsBuilder.() -> Unit = { }) {
@@ -177,6 +185,10 @@ class VideoItemBuilder(private val uri: Uri) {
 
     fun removeAudio() {
         audioRemoved = true
+    }
+
+    fun id(id: String) {
+        this.id = id
     }
 
     fun startAtMs(startAtMs: Long) {
@@ -215,6 +227,13 @@ class VideoItemBuilder(private val uri: Uri) {
                     }
                     .build()
             )
+            .let {
+                if (id.isNotEmpty()) {
+                    it.setMediaId(id)
+                } else {
+                    it
+                }
+            }
             .build()
         return EditedMediaItem.Builder(mediaItem).setEffects(
             Effects(mutableListOf(), effects)

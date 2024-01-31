@@ -1,3 +1,5 @@
+@file:OptIn(UnstableApi::class)
+
 package com.cardinalblue.media3issue
 
 import android.os.Bundle
@@ -10,7 +12,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.util.Size
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.effect.OverlaySettings
-import androidx.media3.effect.VideoCompositorSettings
+import androidx.media3.effect.Presentation
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.transformer.Composition
 import androidx.media3.transformer.DefaultEncoderFactory
@@ -85,9 +87,10 @@ class MainActivity : AppCompatActivity() {
         for (i in -1..1 step 2) {
             for (j in -1..1 step 2) {
                 sequence {
-                    silence(k++.seconds)
+                    silence(k++.seconds, "silence$k")
                     video(getFileFromAssets("dance.mp4").toUri()) {
                         removeAudio()
+                        id("dance$k")
 
                         effects {
                             +ColorToTransparent {
@@ -100,9 +103,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-
         sequence {
-            video(getFileFromAssets("bankruptcy.mp4").toUri())
+            video(getFileFromAssets("bankruptcy.mp4").toUri()) {
+                id("bankruptcy")
+            }
         }
 
         settings {
