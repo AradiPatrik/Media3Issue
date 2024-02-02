@@ -35,6 +35,7 @@ import java.io.IOException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 @DslMarker
 annotation class CompositionDsl
@@ -129,12 +130,22 @@ class VideoSequenceItemBuilder(private val context: Context) {
     }
 
     @CompositionDsl
+    fun audio(uri: Uri) {
+        video(uri) {
+            startAtMs(0)
+            endAtMs(10000)
+            duration(10.seconds)
+        }
+    }
+
+    @CompositionDsl
     fun looping(looping: Boolean) {
         this.looping = looping
     }
 
     @CompositionDsl
     fun silence(duration: Duration, id: String = "") {
+        if (duration == Duration.ZERO) return
         val silenceFile = getFileFromAssets(context, "transparent.png")
         videoItems.add(
             EditedMediaItem.Builder(
@@ -205,6 +216,10 @@ class VideoItemBuilder(private val uri: Uri) {
 
     fun duration(duration: Duration) {
         this.duration = duration
+    }
+
+    fun overlay(overlayEffect: TextureOverlay) {
+        overlayEffects.add(overlayEffect)
     }
 
     fun build(): EditedMediaItem {

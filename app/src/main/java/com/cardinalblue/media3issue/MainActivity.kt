@@ -3,6 +3,7 @@
 package com.cardinalblue.media3issue
 
 import android.os.Bundle
+import android.text.SpannableString
 import android.view.View
 import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
@@ -13,6 +14,7 @@ import androidx.media3.common.util.Size
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.effect.OverlaySettings
 import androidx.media3.effect.Presentation
+import androidx.media3.effect.TextOverlay
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.transformer.Composition
 import androidx.media3.transformer.DefaultEncoderFactory
@@ -83,20 +85,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private suspend fun renderMovie() = renderComposition(this) {
-        var k = 1
+        sequence {
+            silence(10.seconds)
+        }
+        var k = 0
         for (i in -1..1 step 2) {
             for (j in -1..1 step 2) {
                 sequence {
                     silence(k++.seconds, "silence$k")
-                    video(getFileFromAssets("dance.mp4").toUri()) {
-                        removeAudio()
-                        id("dance$k")
+                    repeat(2) {
+                        video(getFileFromAssets("dance.mp4").toUri()) {
+                            removeAudio()
+                            id("dance$k")
 
-                        effects {
-                            +ColorToTransparent {
-                                color(0x00ff00)
+                            effects {
+                                +ColorToTransparent {
+                                    color(0x00ff00)
+                                }
+                                +TranslateNdc(x = i.toFloat(), y = j.toFloat())
                             }
-                            +TranslateNdc(x = i.toFloat(), y = j.toFloat())
                         }
                     }
                 }
@@ -104,8 +111,30 @@ class MainActivity : AppCompatActivity() {
         }
 
         sequence {
+            audio(getFileFromAssets("spy_family.mp3").toUri())
+        }
+
+        sequence {
+            silence(1.seconds)
             video(getFileFromAssets("bankruptcy.mp4").toUri()) {
                 id("bankruptcy")
+
+                startAtMs(5000)
+                endAtMs(10000)
+                duration(5.seconds)
+                removeAudio()
+
+                overlay(TextOverlay.createStaticTextOverlay(SpannableString.valueOf("This is an overlay")))
+            }
+
+            video(getFileFromAssets("loydosan.mp4").toUri()) {
+                id("loydosan")
+                startAtMs(1)
+                endAtMs(5000)
+                duration(5.seconds)
+                removeAudio()
+
+                overlay(TextOverlay.createStaticTextOverlay(SpannableString.valueOf("Hello World")))
             }
         }
 
