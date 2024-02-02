@@ -13,6 +13,9 @@
         android:theme="@style/Theme.Media3Issue"
         tools:targetApi="31">
         <activity
+            android:name=".ExoPlayerPlaygroundActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Media3Issue">

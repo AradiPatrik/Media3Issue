@@ -29,12 +29,14 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "1.8"
     }
     buildFeatures {
         viewBinding = true
+
     }
 }
 
@@ -46,15 +48,15 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.activity)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
-    implementation("androidx.media3:media3-exoplayer:1.2.1")
-    implementation("androidx.media3:media3-exoplayer-dash:1.2.1")
-    implementation("androidx.media3:media3-ui:1.2.1")
-    implementation("androidx.media3:media3-transformer:1.2.1")
-    implementation("androidx.media3:media3-effect:1.2.1")
-    implementation("androidx.media3:media3-common:1.2.1")
-
+    implementation(project(":media-lib-exoplayer"))
+    implementation(project(":media-lib-exoplayer-dash"))
+    implementation(project(":media-lib-ui"))
+    implementation(project(":media-lib-transformer"))
+    implementation(project(":media-lib-effect"))
+    implementation(project(":media-lib-common"))
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }

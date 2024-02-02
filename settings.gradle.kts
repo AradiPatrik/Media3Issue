@@ -21,4 +21,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "Media3Issue"
 include(":app")
- 
+
+gradle.extra.apply {
+    set("androidxMediaModulePrefix", "media-")
+}
+apply(from = file("media/core_settings.gradle"))

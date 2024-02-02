@@ -1,5 +1,5 @@
 @file:UnstableApi
-package com.cardinalblue.media3issue
+package com.cardinalblue.media3issue.dsl.effect
 
 import android.graphics.Matrix
 import androidx.media3.common.util.Assertions
