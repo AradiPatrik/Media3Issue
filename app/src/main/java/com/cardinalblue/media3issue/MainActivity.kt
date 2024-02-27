@@ -93,67 +93,34 @@ class MainActivity : AppCompatActivity() {
     }
 
     private suspend fun renderMovie() = renderComposition(this) {
-        sequence {
-            silence(1.seconds)
-            looping(true)
-            // video(getFileFromAssets("dance.mp4").toUri()) {
-            //     removeAudio()
-            //     effects {
-            //         +ColorToTransparent {
-            //             color(0x00FF00)
-            //         }
-            //     }
-            // }
-            // looping(true)
-        }
-
-
-        sequence {
-            val sixteenByNineEffect = Presentation.createForWidthAndHeight(
-                1920, 1080, Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP
-            )
-            video(getFileFromAssets("bankruptcy.mp4").toUri()) {
-                removeAudio()
-                val text = buildSpannedString {
-                    color(0xFF3388FF.toInt()) {
-                        font(ResourcesCompat.getFont(this@MainActivity, R.font.dancing_script_medium)!!) {
-                            append("Bankruptcy!!!")
+        val video = getFileFromAssets("bankruptcy.mp4").toUri()
+        val music = getFileFromAssets("spy_family.mp3").toUri()
+        var k = 0
+        for (i in -1 .. 1 step 2) {
+            for (j in -1 .. 1 step 2) {
+                sequence {
+                    if (k != 0) {
+                        silence(k.seconds)
+                    }
+                    video(video) {
+                        removeAudio()
+                        effects {
+                            +Presentation.createForWidthAndHeight(1920, 1080,
+                                Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP
+                            )
+                            +TranslateAndScale(i / 2.0f, j / 2.0f, 0.5f, 0.5f)
                         }
                     }
-                }
-
-                overlay(TextOverlay.createStaticTextOverlay(
-                    text.toSpannable() as SpannableString,
-                    OverlaySettings.Builder()
-                        .setScale(2f, 2f)
-                        .setBackgroundFrameAnchor(-1f, 1f)
-                        .setOverlayFrameAnchor(1f, -1f)
-                        .build()
-                ))
-                effects {
-                    +sixteenByNineEffect
-                    +TranslateAndScale(-1f, 0.0f)
-                }
-            }
-            video(getFileFromAssets("loydosan.mp4").toUri()) {
-                removeAudio()
-                effects {
-                    +sixteenByNineEffect
-                    +TranslateAndScale(1f, 0.0f)
+                    k++
                 }
             }
         }
 
         sequence {
-            audio(getFileFromAssets("spy_family.mp3").toUri()) {
+            audio(music) {
                 startAtMs(0)
-                endAtMs(21000)
+                endAtMs(11000)
             }
-        }
-
-        settings {
-            width(1920)
-            height(1080)
         }
     }
 
