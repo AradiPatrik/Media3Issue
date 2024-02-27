@@ -130,11 +130,9 @@ class VideoSequenceItemBuilder(private val context: Context) {
     }
 
     @CompositionDsl
-    fun audio(uri: Uri) {
+    fun audio(uri: Uri, block: VideoItemBuilder.() -> Unit = { }) {
         video(uri) {
-            startAtMs(0)
-            endAtMs(10000)
-            duration(10.seconds)
+            block()
         }
     }
 

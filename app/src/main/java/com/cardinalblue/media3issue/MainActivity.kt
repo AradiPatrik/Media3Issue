@@ -29,12 +29,14 @@ import com.cardinalblue.media3issue.databinding.ActivityMainBinding
 import com.cardinalblue.media3issue.dsl.effect.ColorToTransparent
 import com.cardinalblue.media3issue.dsl.effect.TranslateAndScale
 import com.cardinalblue.media3issue.dsl.getFileFromAssets
+import com.cardinalblue.media3issue.dsl.renderComposition
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import kotlin.time.Duration.Companion.seconds
 
 class MainActivity : AppCompatActivity() {
 
@@ -79,109 +81,52 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun renderMovie(): Uri {
-        val bankruptcy = getFileFromAssets("bankruptcy.mp4")
-        val loydosan = getFileFromAssets("loydosan.mp4")
-
-        val bankruptcyMediaItem = MediaItem.Builder()
-            .setUri(Uri.fromFile(bankruptcy))
-            .build()
-
-        val loydosanMediaItem = MediaItem.Builder()
-            .setUri(Uri.fromFile(loydosan))
-            .build()
-
-        val spyFamilyMusicMediaItem = MediaItem.Builder()
-            .setUri(Uri.parse("asset:///spy_family.mp3"))
-            .setClippingConfiguration(
-                ClippingConfiguration.Builder()
-                    .setStartPositionMs(0)
-                    .setEndPositionMs(21000)
-                    .build()
-            )
-            .build()
-
-        val dancingMediaItem = MediaItem.Builder()
-            .setUri(Uri.parse("asset:///dance.mp4"))
-            .build()
-
-        val sixteenByNineEffect = Presentation.createForWidthAndHeight(
-            1920,
-            1080,
-            Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP
-        )
-        val translateLeftEffect = TranslateAndScale(-1f, 0f)
-        val editedBankruptcy = EditedMediaItem.Builder(bankruptcyMediaItem)
-            .setEffects(Effects(emptyList(), listOf(sixteenByNineEffect, translateLeftEffect)))
-            .setRemoveAudio(true)
-            .build()
-
-        val translateRightEffect = TranslateAndScale(1f, 0f)
-        val editedLoydosan = EditedMediaItem.Builder(loydosanMediaItem)
-            .setEffects(Effects(emptyList(), listOf(sixteenByNineEffect, translateRightEffect)))
-            .setRemoveAudio(true)
-            .build()
-
-        val editedSpyFamilyMusic = EditedMediaItem.Builder(spyFamilyMusicMediaItem)
-            .build()
-
-        val removeGreenScreenEffect = GlEffect { context, useHdr ->
-              ColorToTransparent.Builder()
-                .color(0xFF00FF00.toInt())
-                .build(context)
-        }
-
-        val dancingEditedMediaItem = EditedMediaItem.Builder(dancingMediaItem)
-            .setEffects(Effects(emptyList(), listOf(removeGreenScreenEffect)))
-            .setRemoveAudio(true)
-            .build()
-
-        val sequence = EditedMediaItemSequence(editedBankruptcy, editedLoydosan)
-        val musicSequence = EditedMediaItemSequence(editedSpyFamilyMusic)
-        val dancingSequence = EditedMediaItemSequence(listOf(dancingEditedMediaItem), true)
-        val composition = Composition.Builder(dancingSequence, sequence, musicSequence)
-            .setVideoCompositorSettings(
-                object : VideoCompositorSettings {
-                    override fun getOutputSize(inputSizes: MutableList<Size>): Size {
-                        return Size(1920, 1080)
-                    }
-
-                    override fun getOverlaySettings(
-                        inputId: Int,
-                        presentationTimeUs: Long
-                    ): OverlaySettings {
-                        return VideoCompositorSettings.DEFAULT.getOverlaySettings(inputId, presentationTimeUs)
+    private suspend fun renderMovie() = renderComposition(this) {
+        sequence {
+            video(getFileFromAssets("dance.mp4").toUri()) {
+                removeAudio()
+                effects {
+                    +ColorToTransparent {
+                        color(0x00FF00)
                     }
                 }
-            )
-            .build()
-
-        @Suppress("BlockingMethodInNonBlockingContext")
-        val tempFile = File.createTempFile("output", ".mp4")
-
-        suspendCancellableCoroutine<Unit> {
-            val transformer = Transformer.Builder(this)
-                .build()
-            transformer.addListener(object : Transformer.Listener {
-                override fun onCompleted(composition: Composition, exportResult: ExportResult) {
-                    super.onCompleted(composition, exportResult)
-                    it.resume(Unit)
-                }
-
-                override fun onError(
-                    composition: Composition,
-                    exportResult: ExportResult,
-                    exportException: ExportException
-                ) {
-                    super.onError(composition, exportResult, exportException)
-                    it.resumeWithException(exportException)
-                }
-            })
-            transformer.start(composition, tempFile.path)
+            }
+            looping(true)
         }
 
-        return tempFile.toUri()
+        sequence {
+            audio(getFileFromAssets("spy_family.mp3").toUri()) {
+                startAtMs(0)
+                endAtMs(21000)
+            }
+        }
+
+        sequence {
+            val sixteenByNineEffect = Presentation.createForWidthAndHeight(
+                1920, 1080, Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP
+            )
+            video(getFileFromAssets("bankruptcy.mp4").toUri()) {
+                removeAudio()
+                effects {
+                    +sixteenByNineEffect
+                    +TranslateAndScale(-1f, 0.0f)
+                }
+            }
+            video(getFileFromAssets("loydosan.mp4").toUri()) {
+                removeAudio()
+                effects {
+                    +sixteenByNineEffect
+                    +TranslateAndScale(1f, 0.0f)
+                }
+            }
+        }
+
+        settings {
+            width(1920)
+            height(1080)
+        }
     }
+
 
     private fun getFileFromAssets(fileName: String): File {
         return getFileFromAssets(this, fileName)
