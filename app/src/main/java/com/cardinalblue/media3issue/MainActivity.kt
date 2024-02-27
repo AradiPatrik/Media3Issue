@@ -39,6 +39,7 @@ import java.io.File
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class MainActivity : AppCompatActivity() {
@@ -117,14 +118,10 @@ class MainActivity : AppCompatActivity() {
         sequence {
             silence(1.seconds)
             video(getFileFromAssets("bankruptcy.mp4").toUri()) {
-                id("bankruptcy")
-
                 startAtMs(5000)
                 endAtMs(10000)
                 duration(5.seconds)
                 removeAudio()
-
-                overlay(TextOverlay.createStaticTextOverlay(SpannableString.valueOf("This is an overlay")))
             }
 
             video(getFileFromAssets("loydosan.mp4").toUri()) {
@@ -134,7 +131,6 @@ class MainActivity : AppCompatActivity() {
                 duration(5.seconds)
                 removeAudio()
 
-                overlay(TextOverlay.createStaticTextOverlay(SpannableString.valueOf("Hello World")))
             }
         }
 
