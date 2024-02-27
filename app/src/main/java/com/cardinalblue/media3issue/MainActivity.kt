@@ -11,15 +11,22 @@ import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaItem.ClippingConfiguration
+import androidx.media3.common.util.Size
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.effect.GlEffect
+import androidx.media3.effect.OverlaySettings
+import androidx.media3.effect.Presentation
+import androidx.media3.effect.VideoCompositorSettings
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.transformer.Composition
 import androidx.media3.transformer.EditedMediaItem
 import androidx.media3.transformer.EditedMediaItemSequence
+import androidx.media3.transformer.Effects
 import androidx.media3.transformer.ExportException
 import androidx.media3.transformer.ExportResult
 import androidx.media3.transformer.Transformer
 import com.cardinalblue.media3issue.databinding.ActivityMainBinding
+import com.cardinalblue.media3issue.dsl.effect.ColorToTransparent
 import com.cardinalblue.media3issue.dsl.getFileFromAssets
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -93,20 +100,57 @@ class MainActivity : AppCompatActivity() {
             )
             .build()
 
+        val dancingMediaItem = MediaItem.Builder()
+            .setUri(Uri.parse("asset:///dance.mp4"))
+            .build()
+
+        val sixteenByNineEffect = Presentation.createForWidthAndHeight(
+            1920,
+            1080,
+            Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP
+        )
         val editedBankruptcy = EditedMediaItem.Builder(bankruptcyMediaItem)
+            .setEffects(Effects(emptyList(), listOf(sixteenByNineEffect)))
             .setRemoveAudio(true)
             .build()
 
         val editedLoydosan = EditedMediaItem.Builder(loydosanMediaItem)
+            .setEffects(Effects(emptyList(), listOf(sixteenByNineEffect)))
             .setRemoveAudio(true)
             .build()
 
         val editedSpyFamilyMusic = EditedMediaItem.Builder(spyFamilyMusicMediaItem)
             .build()
 
+        val removeGreenScreenEffect = GlEffect { context, useHdr ->
+              ColorToTransparent.Builder()
+                .color(0xFF00FF00.toInt())
+                .build(context)
+        }
+
+        val dancingEditedMediaItem = EditedMediaItem.Builder(dancingMediaItem)
+            .setEffects(Effects(emptyList(), listOf(removeGreenScreenEffect)))
+            .setRemoveAudio(true)
+            .build()
+
         val sequence = EditedMediaItemSequence(editedBankruptcy, editedLoydosan)
         val musicSequence = EditedMediaItemSequence(editedSpyFamilyMusic)
-        val composition = Composition.Builder(sequence, musicSequence)
+        val dancingSequence = EditedMediaItemSequence(listOf(dancingEditedMediaItem), true)
+        val composition = Composition.Builder(dancingSequence, sequence, musicSequence)
+            .setVideoCompositorSettings(
+                object : VideoCompositorSettings {
+                    override fun getOutputSize(inputSizes: MutableList<Size>): Size {
+                        return Size(1920, 1080)
+                    }
+
+                    override fun getOverlaySettings(
+                        inputId: Int,
+                        presentationTimeUs: Long
+                    ): OverlaySettings {
+                        return VideoCompositorSettings.DEFAULT.getOverlaySettings(inputId, presentationTimeUs)
+                    }
+                }
+            )
             .build()
 
         @Suppress("BlockingMethodInNonBlockingContext")
