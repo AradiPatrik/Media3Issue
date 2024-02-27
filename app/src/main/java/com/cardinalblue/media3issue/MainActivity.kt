@@ -83,14 +83,30 @@ class MainActivity : AppCompatActivity() {
             .setUri(Uri.fromFile(loydosan))
             .build()
 
+        val spyFamilyMusicMediaItem = MediaItem.Builder()
+            .setUri(Uri.parse("asset:///spy_family.mp3"))
+            .setClippingConfiguration(
+                ClippingConfiguration.Builder()
+                    .setStartPositionMs(0)
+                    .setEndPositionMs(21000)
+                    .build()
+            )
+            .build()
+
         val editedBankruptcy = EditedMediaItem.Builder(bankruptcyMediaItem)
+            .setRemoveAudio(true)
             .build()
 
         val editedLoydosan = EditedMediaItem.Builder(loydosanMediaItem)
+            .setRemoveAudio(true)
+            .build()
+
+        val editedSpyFamilyMusic = EditedMediaItem.Builder(spyFamilyMusicMediaItem)
             .build()
 
         val sequence = EditedMediaItemSequence(editedBankruptcy, editedLoydosan)
-        val composition = Composition.Builder(sequence)
+        val musicSequence = EditedMediaItemSequence(editedSpyFamilyMusic)
+        val composition = Composition.Builder(sequence, musicSequence)
             .build()
 
         @Suppress("BlockingMethodInNonBlockingContext")
