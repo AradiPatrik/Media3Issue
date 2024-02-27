@@ -27,6 +27,7 @@ import androidx.media3.transformer.ExportResult
 import androidx.media3.transformer.Transformer
 import com.cardinalblue.media3issue.databinding.ActivityMainBinding
 import com.cardinalblue.media3issue.dsl.effect.ColorToTransparent
+import com.cardinalblue.media3issue.dsl.effect.TranslateAndScale
 import com.cardinalblue.media3issue.dsl.getFileFromAssets
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -109,13 +110,15 @@ class MainActivity : AppCompatActivity() {
             1080,
             Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP
         )
+        val translateLeftEffect = TranslateAndScale(-1f, 0f)
         val editedBankruptcy = EditedMediaItem.Builder(bankruptcyMediaItem)
-            .setEffects(Effects(emptyList(), listOf(sixteenByNineEffect)))
+            .setEffects(Effects(emptyList(), listOf(sixteenByNineEffect, translateLeftEffect)))
             .setRemoveAudio(true)
             .build()
 
+        val translateRightEffect = TranslateAndScale(1f, 0f)
         val editedLoydosan = EditedMediaItem.Builder(loydosanMediaItem)
-            .setEffects(Effects(emptyList(), listOf(sixteenByNineEffect)))
+            .setEffects(Effects(emptyList(), listOf(sixteenByNineEffect, translateRightEffect)))
             .setRemoveAudio(true)
             .build()
 
