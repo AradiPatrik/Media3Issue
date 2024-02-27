@@ -2,12 +2,21 @@
 
 package com.cardinalblue.media3issue
 
+import android.graphics.fonts.Font
 import android.net.Uri
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.SpannableStringBuilder
+import android.text.style.StyleSpan
 import android.view.View
 import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.net.toUri
+import androidx.core.text.buildSpannedString
+import androidx.core.text.color
+import androidx.core.text.inSpans
+import androidx.core.text.toSpannable
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaItem.ClippingConfiguration
@@ -16,6 +25,8 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.effect.GlEffect
 import androidx.media3.effect.OverlaySettings
 import androidx.media3.effect.Presentation
+import androidx.media3.effect.TextOverlay
+import androidx.media3.effect.TextureOverlay
 import androidx.media3.effect.VideoCompositorSettings
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.transformer.Composition
@@ -83,23 +94,19 @@ class MainActivity : AppCompatActivity() {
 
     private suspend fun renderMovie() = renderComposition(this) {
         sequence {
-            video(getFileFromAssets("dance.mp4").toUri()) {
-                removeAudio()
-                effects {
-                    +ColorToTransparent {
-                        color(0x00FF00)
-                    }
-                }
-            }
+            silence(1.seconds)
             looping(true)
+            // video(getFileFromAssets("dance.mp4").toUri()) {
+            //     removeAudio()
+            //     effects {
+            //         +ColorToTransparent {
+            //             color(0x00FF00)
+            //         }
+            //     }
+            // }
+            // looping(true)
         }
 
-        sequence {
-            audio(getFileFromAssets("spy_family.mp3").toUri()) {
-                startAtMs(0)
-                endAtMs(21000)
-            }
-        }
 
         sequence {
             val sixteenByNineEffect = Presentation.createForWidthAndHeight(
@@ -107,6 +114,22 @@ class MainActivity : AppCompatActivity() {
             )
             video(getFileFromAssets("bankruptcy.mp4").toUri()) {
                 removeAudio()
+                val text = buildSpannedString {
+                    color(0xFF3388FF.toInt()) {
+                        font(ResourcesCompat.getFont(this@MainActivity, R.font.dancing_script_medium)!!) {
+                            append("Bankruptcy!!!")
+                        }
+                    }
+                }
+
+                overlay(TextOverlay.createStaticTextOverlay(
+                    text.toSpannable() as SpannableString,
+                    OverlaySettings.Builder()
+                        .setScale(2f, 2f)
+                        .setBackgroundFrameAnchor(-1f, 1f)
+                        .setOverlayFrameAnchor(1f, -1f)
+                        .build()
+                ))
                 effects {
                     +sixteenByNineEffect
                     +TranslateAndScale(-1f, 0.0f)
@@ -118,6 +141,13 @@ class MainActivity : AppCompatActivity() {
                     +sixteenByNineEffect
                     +TranslateAndScale(1f, 0.0f)
                 }
+            }
+        }
+
+        sequence {
+            audio(getFileFromAssets("spy_family.mp3").toUri()) {
+                startAtMs(0)
+                endAtMs(21000)
             }
         }
 
